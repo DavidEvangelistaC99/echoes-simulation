@@ -27,7 +27,7 @@ phi_ = 0
 
 # Doppler parameters
 velocity = 10.0         # m/s
-freq_op_ = 9.345e6      # Hz (frecuencia de operación)
+freq_op_ = 9.345e9      # Hz (frecuencia de operación)
 c_ = 3.0e8
 
 # Doppler frequency
