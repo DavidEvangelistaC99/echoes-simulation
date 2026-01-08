@@ -50,12 +50,13 @@ readUnitConfObj = controllerObj.addReadUnit(datatype='DigitalRFReader',
                                             # online=0,
                                             # walk=1,
 
-                                            getByBlock = 1,
-                                            nProfileBlocks = 500,
 
 
                                             # Importante para el uso con el radar SOPHy
-                                            ippKm = 60,)
+                                            ippKm = 60,
+                                            getByBlock = 1,
+                                            nProfileBlocks = 500,
+                                            )
 
 opObj11 = readUnitConfObj.addOperation(name='printInfo')
 # opObj11 = readUnitConfObj.addOperation(name='printNumberOfBlock')
@@ -97,6 +98,7 @@ op2 = procUnitConfObjA.addOperation(name='Decoder', optype='other')
 op2.addParameter(name='code', value=code)
 op2.addParameter(name='nCode', value=len(code), format='int')
 op2.addParameter(name='nBaud', value=len(code[0]), format='int')
+op2.addParameter(name='variableInsert', value=8.0, format='float')
 
 # Minimo integrar 2 perfiles por ser codigo complementario, para el Chirp no es necesario por no ser continua y no tener dos códigos
 # op3 = procUnitConfObjA.addOperation(name='CohInt', optype='other') 

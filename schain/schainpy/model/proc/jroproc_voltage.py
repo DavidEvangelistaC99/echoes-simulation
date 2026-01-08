@@ -686,6 +686,8 @@ class Decoder(Operation):
     nCode = None
     nBaud = None
 
+    variable__ = 2.0
+
     def __init__(self, **kwargs):
 
         Operation.__init__(self, **kwargs)
@@ -695,10 +697,10 @@ class Decoder(Operation):
     #         self.__setValues = False
         self.isConfig = False
         self.setupReq = False
-    def setup(self, code, osamp, dataOut):
+    def setup(self, code, osamp, dataOut, variable=None):
 
         self.__profIndex = 0
-
+        self.variable__ = variable
         self.code = code
 
         self.nCode = len(code)
@@ -755,6 +757,8 @@ class Decoder(Operation):
     def __convolutionInTime(self, data):
 
         print("ConvProfile")
+        print("hola")
+        print(self.variable__)
 
         code = self.code[self.__profIndex]
         for i in range(self.__nChannels):
@@ -770,6 +774,7 @@ class Decoder(Operation):
 
     def __convolutionByBlockInTime(self, data):
 
+        
         print("ConvBlock")
 
         repetitions = int(self.__nProfiles / self.nCode)
@@ -799,7 +804,7 @@ class Decoder(Operation):
         return data
 
 
-    def run(self, dataOut, code=None, nCode=None, nBaud=None, mode = 0, osamp=None, times=None):
+    def run(self, dataOut, code=None, nCode=None, nBaud=None, mode = 0, osamp=None, times=None, variableInsert = None):
 
         if dataOut.flagDecodeData:
             print("This data is already decoded, recoding again ...")
@@ -847,7 +852,7 @@ class Decoder(Operation):
             Decoding when data have been read profile by profile
             """
             if mode == 0:
-                datadec = self.__convolutionInTime(dataOut.data)
+                datadec = self.__convolutionInTime(dataOut.data, variable=self.variable__)
 
             if mode == 1:
                 datadec = self.__convolutionInFreq(dataOut.data)
