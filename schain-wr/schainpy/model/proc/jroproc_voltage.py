@@ -769,6 +769,15 @@ class Decoder(Operation):
             self.datadecTime[i] = signal.correlate(data[i], self.code, mode='full')[:self.__nProfiles,self.nBaud-1:]
         return self.datadecTime
 
+    def __convolutionByBlockTFM(self, data):
+        
+        print("ConvBlockTFM")
+
+        for i in range(self.__nChannels):
+            self.datadecTime[i] = signal.correlate(data[i], self.code, mode='full')[:self.__nProfiles,self.nBaud-1:]
+        return self.datadecTime
+
+
     def __convolutionByBlockInFreq(self, data):
 
         raise NotImplementedError("Decoder by frequency fro Blocks not implemented")
@@ -828,6 +837,8 @@ class Decoder(Operation):
                 datadec = self.__convolutionByBlockInTime(dataOut.data)
             if mode == 1:
                 datadec = self.__convolutionByBlockInFreq(dataOut.data)
+            if mode == 2:
+                datadec = self.__convolutionByBlockTFM(dataOut.data)
         else:
             """
             Decoding when data have been read profile by profile
