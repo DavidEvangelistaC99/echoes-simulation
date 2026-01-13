@@ -13,7 +13,6 @@ desc = "USRP_test"
 filename = "USRP_processing.xml"
 
 path = '/home/david/Documentos/DATA/CHIRP@2025-10-07T19-57-06/rawdata/'
-#'/DATA_RM/DATA/CHIRP@2025-10-09T16-29-01/rawdata/'
 figpath = '/home/david/Documentos/DATA/CHIRP@2025-10-07T19-57-06/rawdata'
 
 ## REVISION ##
@@ -49,9 +48,7 @@ readUnitConfObj = controllerObj.addReadUnit(datatype='DigitalRFReader',
                                             # set=0,
                                             # online=0,
                                             # walk=1,
-
-
-
+                                            
                                             # Importante para el uso con el radar SOPHy
                                             ippKm = 60,
                                             getByBlock = 1,
