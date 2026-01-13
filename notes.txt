@@ -9,5 +9,10 @@ Changes:
 
 - Add new function __convolutionByBlockTFM(), initially, it performs the same operation as the convByBlock (jroproc_voltage.py)
 - Add mode change parameter (spectra_test.py)
+- Add new parameters in Decoder function
+	- Add parameter definition in spectra_test.py
+	- Add parameter in class Decoder (jroproc_voltage.py)
+	- Call argument in convolution functions and add parameter in them
+- Modify parameters, replaced DC1, DC2 for TFM pulse
 
  

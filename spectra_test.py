@@ -98,7 +98,7 @@ op2.addParameter(name='nCode', value=len(code), format='int')
 op2.addParameter(name='nBaud', value=len(code[0]), format='int')
 # Parametro del cambio de modo
 op2.addParameter(name='mode', value=2, format='int')
-# op2.addParameter(name='variableInsert', value=8.0, format='float')
+op2.addParameter(name='variableInsert', value=8.0, format='float')
 
 # Minimo integrar 2 perfiles por ser codigo complementario, para el Chirp no es necesario por no ser continua y no tener dos códigos
 # op3 = procUnitConfObjA.addOperation(name='CohInt', optype='other') 
