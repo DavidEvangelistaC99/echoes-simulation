@@ -1,7 +1,6 @@
 # TEST_BOLITA_COBRE_4
 
 import modFreq as modf
-
 import os, sys
 import datetime
 import time
@@ -27,8 +26,8 @@ controllerObj.setup(id = '192', name='Test_USRP', description="Hola Mundo")
 # Parametros de graficos
 ## 2 ##
 # DAVID
-# Para el cambio del analisis de ruido en general [-74.50740224 -76.40816055]
-
+# Para el cambio del analisis de ruido en general 
+# Ruido: [-74.50740224 -76.40816055]
 dBmin = -80
 dBmax = 0
 xmin = '0'
@@ -86,7 +85,6 @@ fc = 0.0e6
 bw = 1.0e6
       
 chirp_tx_1, _ = modf.chirpMod(A, ipp, dc, sr_rx, sr_rx, fc, bw, t_d = 0, window = 'B', mode_f = 0)
-# chirp_tx_1 = modf.chirpModUnion(ipp, sr_rx, sr_rx, A, A, 14.6, 0.4, 0.75e6, 0.0, 1.5e6, 0.0, 'B', 'R')
 
 code_ = chirp_tx_1
 code = [code_]
