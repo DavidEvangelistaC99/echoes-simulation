@@ -34,7 +34,7 @@ controllerObj.setup(id = '192', name='Test_USRP', description="Hola Mundo")
 # dBmin = -80
 
 # Large and short pulses 
-# [-82.79509938 -82.79509938]
+# Noise: [-82.79509938 -82.79509938]
 
 dBmin = -85
 dBmax = -50
