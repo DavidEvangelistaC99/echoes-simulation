@@ -8,4 +8,6 @@ Changes:
 - Change dbMin, dbMax in spectra_test.py
 
 - Add new function __convolutionByBlockTFM(), initially, it performs the same operation as the convByBlock
+- Add mode change parameter (spectra_test.py)
+
  
