@@ -7,7 +7,7 @@ Changes:
 - Print noise minimum value (jroplot_spectra.py)
 - Change dbMin, dbMax in spectra_test.py
 
-- Add new function __convolutionByBlockTFM(), initially, it performs the same operation as the convByBlock
+- Add new function __convolutionByBlockTFM(), initially, it performs the same operation as the convByBlock (jroproc_voltage.py)
 - Add mode change parameter (spectra_test.py)
 
  
