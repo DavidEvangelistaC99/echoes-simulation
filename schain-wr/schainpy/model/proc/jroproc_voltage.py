@@ -763,12 +763,9 @@ class Decoder(Operation):
         for i in range(self.__nChannels):
             self.datadecTime[i,:] = numpy.correlate(data[i,:], code, mode='full')[self.nBaud-1:]
 
-            t_ = [k for k in range(len(data[i,:]))]
-
-            #plt.plot(t_, data[i,:])
-            #plt.show()
-
-
+            # t_ = [k for k in range(len(data[i,:]))]
+            # plt.plot(t_, data[i,:])
+            # plt.show()
 
         return self.datadecTime
 

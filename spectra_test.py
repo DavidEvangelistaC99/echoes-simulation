@@ -1,6 +1,8 @@
-# TEST_BOLITA_COBRE_4
+###---Spectra Test TFM---###
 
+# Import modFreq script
 import modFreq as modf
+
 import os, sys
 import datetime
 import time
@@ -11,30 +13,30 @@ import matplotlib.pyplot as plt
 desc = "USRP_test"
 filename = "USRP_processing.xml"
 
-#path = '/home/david/Documentos/DATA/CHIRP@2025-10-07T19-57-06/rawdata/'
-#figpath = '/home/david/Documentos/DATA/CHIRP@2025-10-07T19-57-06/rawdata'
+# path = '/home/david/Documentos/DATA/CHIRP@2025-10-07T19-57-06/rawdata/'
+# figpath = '/home/david/Documentos/DATA/CHIRP@2025-10-07T19-57-06/rawdata'
 
 path = '/home/david/Documentos/DATA/CHIRP@2025-10-07T00-00-00/'
 figpath = '/home/david/Documentos/DATA/CHIRP@2025-10-07T00-00-00'
 
-## REVISION ##
+## Review ##
 ## 1 ##
 controllerObj = Project()
 controllerObj.setup(id = '192', name='Test_USRP', description="Hola Mundo")
 
 #######################################################################
-######################### RANGO DE PLOTEO #############################
+########################### PLOTTING RANGE ############################
 #######################################################################
 
-# Parametros de graficos
 ## 2 ##
-# DAVID
-# Para el cambio del analisis de ruido en general 
+
+# Noise review only large pulse
 # Ruido: [-74.50740224 -76.40816055]
 # dBmin = -80
 
-# Large and short pulses 
+# Large and short pulses TFM
 # Noise: [-82.79509938 -82.79509938]
+# dBmin = -85
 
 dBmin = -85
 dBmax = -50
@@ -44,7 +46,7 @@ ymin = '0'
 ymax = '60'
 
 #######################################################################
-######################## UNIDAD DE LECTURA ############################
+############################ READING UNIT #############################
 #######################################################################
 
 readUnitConfObj = controllerObj.addReadUnit(datatype='DigitalRFReader',
@@ -54,47 +56,31 @@ readUnitConfObj = controllerObj.addReadUnit(datatype='DigitalRFReader',
                                             startTime='00:00:00',
                                             endTime='23:59:59',
                                             delay=0,
-                                            
                                             # set=0,
                                             # online=0,
                                             # walk=1,
-                                            
-                                            # Importante para el uso con el radar SOPHy
+                                            # Important for use with the SOPHy radar
                                             ippKm = 60,
                                             getByBlock = 1,
                                             nProfileBlocks = 500,
                                             )
 
 opObj11 = readUnitConfObj.addOperation(name='printInfo')
-# opObj11 = readUnitConfObj.addOperation(name='printNumberOfBlock')
 
 # voltage -> procUnitConfObjA 
-# Añadir una unidad de procesamiento
 
 ## 3 ##
+# Add processing unit
 procUnitConfObjA = controllerObj.addProcUnit(datatype='VoltageProc', inputId=readUnitConfObj.getId())
 
 op =  procUnitConfObjA.addOperation(name='setAttribute')
 op.addParameter(name='frequency', value='9.345e9', format='float')
 
 op1 = procUnitConfObjA.addOperation(name='ProfileSelector')
-# Cambio del valor del numero de perfiles por uno constante (nProfiles)
+
+# Change the value of the number of profiles to a fixed value (nProfiles)
 op1.addParameter(name='profileRangeList', value='0,249')
 # op1.addParameter(name='profileRangeList', value='250,499')
-
-# Parameters
-A = 1.0
-ipp = 400.0e-6
-# dc_1 = 14.5
-# dc_1 = 0.5
-# dc_2 = 1.0
-# Consideramos el SR RX
-sr_tx = 20.0e6
-sr_rx = 5.0e6
-# fc = -0.75e6
-fc = 2.5e6
-bw = 0
-# bw = 1.5e6
 
 # New parameters
 A_1 = 1.0
@@ -116,7 +102,8 @@ mode_f_ = 0
 phi_ = 0
 rep_ = 250.0
       
-# chirp_tx_1, _ = modf.chirpMod(A, ipp, dc_1, sr_rx, sr_rx, fc, bw, t_d = 0, window = 'B', mode_f = 0)
+# chirp_tx_1, _ = modf.chirpMod(A_1, ipp, dc_1, sr_rx, sr_rx, fc_1, bw_1, t_d = 0, window = 'B', mode_f = 0)
+
 # New TFM chirp signal implemented
 chirp_tx_1 = modf.chirpModUnion_1(  ipp,
                                     sr_rx, 
@@ -143,31 +130,34 @@ op2 = procUnitConfObjA.addOperation(name='Decoder', optype='other')
 op2.addParameter(name='code', value=code)
 op2.addParameter(name='nCode', value=len(code), format='int')
 op2.addParameter(name='nBaud', value=len(code[0]), format='int')
+
 # Change mode parameter (ByBlock TFM)
 op2.addParameter(name='mode', value=0, format='int')
+
 # New TFM parameters added
 op2.addParameter(name='DC1', value=dc_1, format='float')
 op2.addParameter(name='DC2', value=dc_2, format='float')
 
-# Minimo integrar 2 perfiles por ser codigo complementario, para el Chirp no es necesario por no ser continua y no tener dos códigos
+# At least 2 profiles must be integrated for complementary codes;
+# for Chirp this is not necessary since it is not continuous and does not have two codes
 # op3 = procUnitConfObjA.addOperation(name='CohInt', optype='other') 
 # op3.addParameter(name='n', value=2, format='int')
 
 #######################################################################
-############## OPERACIONES DOMINIO DE LA FRECUENCIA ###################
+#################### FREQUENCY-DOMAIN OPERATIONS ######################
 #######################################################################
 
 procUnitConfObjSousySpectra = controllerObj.addProcUnit(datatype='SpectraProc', inputId=procUnitConfObjA.getId())
 procUnitConfObjSousySpectra.addParameter(name='nFFTPoints', value='500', format='int')
 procUnitConfObjSousySpectra.addParameter(name='nProfiles', value='500', format='int')
 
-# Remocion DC
+# DC removal
 
 opObj13 = procUnitConfObjSousySpectra.addOperation(name='removeDC')
 opObj13.addParameter(name='mode', value='2', format='int')
 
 #######################################################################
-################## PLOTEO DOMINIO DE LA FRECUENCIA ####################
+####################### FREQUENCY-DOMAIN PLOTTING #####################
 #######################################################################
 
 # SpectraPlot
@@ -182,23 +172,5 @@ opObj11.addParameter(name='ymax', value=ymax, format='int')
 opObj11.addParameter(name='showprofile', value='1', format='int')
 opObj11.addParameter(name='save', value=figpath, format='str')
 opObj11.addParameter(name='xaxis', value='velocity', format='str')
-# opObj11.addParameter(name='save_period', value=2, format='int')
-
-#######################################################################
-############################ RTI PLOT #################################
-#######################################################################
-
-'''
-opObj11 = procUnitConfObjSousySpectra.addOperation(name='RTIPlot', optype='external')
-opObj11.addParameter(name='id', value='2', format='int')
-opObj11.addParameter(name='wintitle', value='RTIPlot', format='str')
-opObj11.addParameter(name='ymin', value=ymin, format='int')
-opObj11.addParameter(name='ymax', value=ymax, format='int')
-opObj11.addParameter(name='xmin', value=10, format='int')
-opObj11.addParameter(name='xmax', value=30, format='int')
-opObj11.addParameter(name='showprofile', value='1', format='int')
-opObj11.addParameter(name='save', value=figpath, format='str')
-opObj11.addParameter(name='save_period', value=5, format='int')
-'''
 
 controllerObj.start()

@@ -45,7 +45,7 @@ class SpectraPlot(Plot):
 
         # DAVID
         # Por revisar, se modifico el Noise de forma general
-        data['noise'] = 10*numpy.log10(dataOut.getNoise()/dataOut.normFactor)
+        # data['noise'] = 10*numpy.log10(dataOut.getNoise()/dataOut.normFactor)
 
         # DAVID
         # Print de noise
