@@ -25,5 +25,9 @@ Changes:
 			F_C = 2.5 MHz
 			BW = 0
 
+- Verification in convByProfile (plots)
+
+
+- Work with the convByBlockTFM function
 
 			   
