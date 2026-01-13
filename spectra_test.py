@@ -77,14 +77,15 @@ op1.addParameter(name='profileRangeList', value='0,499')
 # Parameters
 A = 1.0
 ipp = 400.0e-6
-dc = 12.0
+dc_1 = 12.0
+dc_2 = 1.0
 # Consideramos el SR RX
 sr_tx = 20.0e6
 sr_rx = 2.5e6
 fc = 0.0e6
 bw = 1.0e6
       
-chirp_tx_1, _ = modf.chirpMod(A, ipp, dc, sr_rx, sr_rx, fc, bw, t_d = 0, window = 'B', mode_f = 0)
+chirp_tx_1, _ = modf.chirpMod(A, ipp, dc_1, sr_rx, sr_rx, fc, bw, t_d = 0, window = 'B', mode_f = 0)
 
 code_ = chirp_tx_1
 code = [code_]
@@ -96,9 +97,11 @@ op2 = procUnitConfObjA.addOperation(name='Decoder', optype='other')
 op2.addParameter(name='code', value=code)
 op2.addParameter(name='nCode', value=len(code), format='int')
 op2.addParameter(name='nBaud', value=len(code[0]), format='int')
-# Parametro del cambio de modo
+# Change mode parameter (ByBlock TFM)
 op2.addParameter(name='mode', value=2, format='int')
-op2.addParameter(name='variableInsert', value=8.0, format='float')
+# New TFM parameters added
+op2.addParameter(name='DC1', value=dc_1, format='float')
+op2.addParameter(name='DC2', value=dc_2, format='float')
 
 # Minimo integrar 2 perfiles por ser codigo complementario, para el Chirp no es necesario por no ser continua y no tener dos códigos
 # op3 = procUnitConfObjA.addOperation(name='CohInt', optype='other') 

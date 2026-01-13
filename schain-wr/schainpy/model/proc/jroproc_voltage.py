@@ -769,11 +769,13 @@ class Decoder(Operation):
             self.datadecTime[i] = signal.correlate(data[i], self.code, mode='full')[:self.__nProfiles,self.nBaud-1:]
         return self.datadecTime
 
-    def __convolutionByBlockTFM(self, data, variableInsert):
+    def __convolutionByBlockTFM(self, data, dc_1, dc_2):
         
         print("ConvBlockTFM")
-        print(variableInsert)
-        print(type(variableInsert))
+        print(dc_1)
+        print(dc_2) 
+        print(type(dc_1))
+        print(type(dc_2))
 
         for i in range(self.__nChannels):
             self.datadecTime[i] = signal.correlate(data[i], self.code, mode='full')[:self.__nProfiles,self.nBaud-1:]
@@ -797,7 +799,7 @@ class Decoder(Operation):
 
     # DAVID
     # variableInsert
-    def run(self, dataOut, code=None, nCode=None, nBaud=None, mode = 0, osamp=None, times=None, variableInsert=None):
+    def run(self, dataOut, code=None, nCode=None, nBaud=None, mode = 0, osamp=None, times=None, DC1=None, DC2=None):
 
         if dataOut.flagDecodeData:
             print("This data is already decoded, recoding again ...")
@@ -841,7 +843,7 @@ class Decoder(Operation):
             if mode == 1:
                 datadec = self.__convolutionByBlockInFreq(dataOut.data)
             if mode == 2:
-                datadec = self.__convolutionByBlockTFM(dataOut.data, variableInsert=variableInsert)
+                datadec = self.__convolutionByBlockTFM(dataOut.data, dc_1=DC1, dc_2=DC2)
         else:
             """
             Decoding when data have been read profile by profile
