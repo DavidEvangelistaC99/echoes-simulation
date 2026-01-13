@@ -697,10 +697,10 @@ class Decoder(Operation):
     #         self.__setValues = False
         self.isConfig = False
         self.setupReq = False
-    def setup(self, code, osamp, dataOut, variable=None):
+    def setup(self, code, osamp, dataOut):#, variable=None):
 
         self.__profIndex = 0
-        self.variable__ = variable
+        #self.variable__ = variable
         self.code = code
 
         self.nCode = len(code)
@@ -852,7 +852,7 @@ class Decoder(Operation):
             Decoding when data have been read profile by profile
             """
             if mode == 0:
-                datadec = self.__convolutionInTime(dataOut.data, variable=self.variable__)
+                datadec = self.__convolutionInTime(dataOut.data)#, variable=self.variable__)
 
             if mode == 1:
                 datadec = self.__convolutionInFreq(dataOut.data)
