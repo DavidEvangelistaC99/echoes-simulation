@@ -2,10 +2,13 @@
 
 - Python 3.10+
 - digital_rf 2.6.7
-- matplotlib 3.6.0
-- numpy 1.24.4
+- matplotlib 3.5.1
+- numpy <1.24
 - **Signal Chain proessing library (`schain`) - ROJ**
   - argh 0.26.2
   - cartopy 0.23.0
-  - digital_rf 2.6.7
   - wradlib 2.2.0
+  - pillow 9.1.0
+  - fuzzywuzzy 0.18.0
+  - pycparser 2.22
+  - scipy 1.8.0
