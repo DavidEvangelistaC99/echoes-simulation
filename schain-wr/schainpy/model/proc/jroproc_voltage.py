@@ -7,6 +7,10 @@ from schainpy.utils import log
 from time import time
 from scipy import signal
 
+# DAVID
+# Tests
+import matplotlib.pyplot as plt
+
 
 class VoltageProc(ProcessingUnit):
 
@@ -758,6 +762,13 @@ class Decoder(Operation):
         code = self.code[self.__profIndex]
         for i in range(self.__nChannels):
             self.datadecTime[i,:] = numpy.correlate(data[i,:], code, mode='full')[self.nBaud-1:]
+
+            t_ = [k for k in range(len(data[i,:]))]
+
+            #plt.plot(t_, data[i,:])
+            #plt.show()
+
+
 
         return self.datadecTime
 

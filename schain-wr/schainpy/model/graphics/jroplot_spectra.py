@@ -49,7 +49,7 @@ class SpectraPlot(Plot):
 
         # DAVID
         # Print de noise
-        # print(data['noise'])
+        print(data['noise'])
         meta['xrange'] = (dataOut.getFreqRange(0)/1000., dataOut.getAcfRange(1), dataOut.getVelRange(0))
 
         if self.CODE == 'spc_moments':

@@ -15,4 +15,15 @@ Changes:
 	- Call argument in convolution functions and add parameter in them
 - Modify parameters, replaced DC1, DC2 for TFM pulse
 
- 
+- Work with double pulse experimental data, IPP = 400us, SR_RX = 5 MHz
+	- Large pulse:	A_1 = 1
+			DC_1 = 14.5
+			F_C = -0.75 MHz
+			BW = 1.5 MHz
+	- Short pulse	A_2 = 1
+			DC_2 = 0.5 
+			F_C = 2.5 MHz
+			BW = 0
+
+
+			   

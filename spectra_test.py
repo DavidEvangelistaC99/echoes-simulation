@@ -11,8 +11,11 @@ import matplotlib.pyplot as plt
 desc = "USRP_test"
 filename = "USRP_processing.xml"
 
-path = '/home/david/Documentos/DATA/CHIRP@2025-10-07T19-57-06/rawdata/'
-figpath = '/home/david/Documentos/DATA/CHIRP@2025-10-07T19-57-06/rawdata'
+#path = '/home/david/Documentos/DATA/CHIRP@2025-10-07T19-57-06/rawdata/'
+#figpath = '/home/david/Documentos/DATA/CHIRP@2025-10-07T19-57-06/rawdata'
+
+path = '/home/david/Documentos/DATA/CHIRP@2025-10-07T00-00-00/'
+figpath = '/home/david/Documentos/DATA/CHIRP@2025-10-07T00-00-00'
 
 ## REVISION ##
 ## 1 ##
@@ -28,8 +31,13 @@ controllerObj.setup(id = '192', name='Test_USRP', description="Hola Mundo")
 # DAVID
 # Para el cambio del analisis de ruido en general 
 # Ruido: [-74.50740224 -76.40816055]
-dBmin = -80
-dBmax = 0
+# dBmin = -80
+
+# Large and short pulses 
+# [-82.79509938 -82.79509938]
+
+dBmin = -85
+dBmax = -50
 xmin = '0'
 xmax = '24'
 ymin = '0'
@@ -71,19 +79,22 @@ op.addParameter(name='frequency', value='9.345e9', format='float')
 
 op1 = procUnitConfObjA.addOperation(name='ProfileSelector')
 # Cambio del valor del numero de perfiles por uno constante (nProfiles)
-op1.addParameter(name='profileRangeList', value='0,499')
+op1.addParameter(name='profileRangeList', value='0,249')
 # op1.addParameter(name='profileRangeList', value='250,499')
 
 # Parameters
 A = 1.0
 ipp = 400.0e-6
-dc_1 = 12.0
+# dc_1 = 14.5
+dc_1 = 0.5
 dc_2 = 1.0
 # Consideramos el SR RX
 sr_tx = 20.0e6
-sr_rx = 2.5e6
-fc = 0.0e6
-bw = 1.0e6
+sr_rx = 5.0e6
+# fc = -0.75e6
+fc = 2.5e6
+bw = 0
+# bw = 1.5e6
       
 chirp_tx_1, _ = modf.chirpMod(A, ipp, dc_1, sr_rx, sr_rx, fc, bw, t_d = 0, window = 'B', mode_f = 0)
 
@@ -98,7 +109,7 @@ op2.addParameter(name='code', value=code)
 op2.addParameter(name='nCode', value=len(code), format='int')
 op2.addParameter(name='nBaud', value=len(code[0]), format='int')
 # Change mode parameter (ByBlock TFM)
-op2.addParameter(name='mode', value=2, format='int')
+op2.addParameter(name='mode', value=0, format='int')
 # New TFM parameters added
 op2.addParameter(name='DC1', value=dc_1, format='float')
 op2.addParameter(name='DC2', value=dc_2, format='float')
