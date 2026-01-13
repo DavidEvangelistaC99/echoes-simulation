@@ -42,7 +42,12 @@ class SpectraPlot(Plot):
         spc = 10*numpy.log10(dataOut.data_spc/dataOut.normFactor)
         data['spc'] = spc
         data['rti'] = dataOut.getPower()
+
+        # DAVID
+        # Por revisar, se modifico el Noise de forma general
         data['noise'] = 10*numpy.log10(dataOut.getNoise()/dataOut.normFactor)
+
+        print(data['noise'])
         meta['xrange'] = (dataOut.getFreqRange(0)/1000., dataOut.getAcfRange(1), dataOut.getVelRange(0))
 
         if self.CODE == 'spc_moments':
@@ -109,6 +114,8 @@ class SpectraPlot(Plot):
                     ax.plt_gau0 = ax.plot(gau0, y, color='r', lw=1)[0]
                     ax.plt_gau1 = ax.plot(gau1, y, color='y', lw=1)[0]
             else:
+                if self.zlimits is not None:
+                    self.zmin, self.zmax = self.zlimits[n]
                 ax.plt.set_array(z[n].T.ravel())
                 if self.showprofile:
                     ax.plt_profile.set_data(data['rti'][n], y)
@@ -271,7 +278,7 @@ class RTIPlot(Plot):
                     ax.plot_noise = self.pf_axes[n].plot(numpy.repeat(data['noise'][n], len(self.y)), self.y,
                                                          color="k", linestyle="dashed", lw=1)[0]
             else:
-                ax.collections.remove(ax.collections[0])
+                # ax.collections.remove(ax.collections[0])
                 ax.plt = ax.pcolormesh(x, y, z[n].T,
                                        vmin=self.zmin,
                                        vmax=self.zmax,

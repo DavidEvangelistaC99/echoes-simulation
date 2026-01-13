@@ -26,8 +26,11 @@ controllerObj.setup(id = '192', name='Test_USRP', description="Hola Mundo")
 
 # Parametros de graficos
 ## 2 ##
-dBmin = 0
-dBmax = 120
+# DAVID
+# Para el cambio del analisis de ruido en general [-74.50740224 -76.40816055]
+
+dBmin = -80
+dBmax = 0
 xmin = '0'
 xmax = '24'
 ymin = '0'
@@ -69,7 +72,7 @@ op.addParameter(name='frequency', value='9.345e9', format='float')
 
 op1 = procUnitConfObjA.addOperation(name='ProfileSelector')
 # Cambio del valor del numero de perfiles por uno constante (nProfiles)
-op1.addParameter(name='profileRangeList', value='0,249')
+op1.addParameter(name='profileRangeList', value='0,499')
 # op1.addParameter(name='profileRangeList', value='250,499')
 
 # Parameters
@@ -95,7 +98,7 @@ op2 = procUnitConfObjA.addOperation(name='Decoder', optype='other')
 op2.addParameter(name='code', value=code)
 op2.addParameter(name='nCode', value=len(code), format='int')
 op2.addParameter(name='nBaud', value=len(code[0]), format='int')
-op2.addParameter(name='variableInsert', value=8.0, format='float')
+# op2.addParameter(name='variableInsert', value=8.0, format='float')
 
 # Minimo integrar 2 perfiles por ser codigo complementario, para el Chirp no es necesario por no ser continua y no tener dos códigos
 # op3 = procUnitConfObjA.addOperation(name='CohInt', optype='other') 

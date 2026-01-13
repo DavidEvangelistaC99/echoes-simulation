@@ -15,7 +15,7 @@ import datetime
 from collections import deque
 from functools import wraps
 from threading import Thread
-import matplotlib,re
+import matplotlib
 
 if 'BACKEND' in os.environ:
     matplotlib.use(os.environ['BACKEND'])
@@ -28,29 +28,28 @@ else:
     log.warning('Using default Backend="Agg"', 'INFO')
     matplotlib.use('Agg')
 
+import cartopy.crs as ccrs
+
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.ticker import FuncFormatter, LinearLocator, MultipleLocator
-import matplotlib.cbook as cbook
-import matplotlib.image  as image
-
-import cartopy.crs as ccrs
-
-from .plotting_codes import register_cmap
 
 from schainpy.model.data.jrodata import PlotterData
 from schainpy.model.proc.jroproc_base import ProcessingUnit, Operation, MPDecorator
 from schainpy.utils import log
 
+jet_values = matplotlib.pyplot.get_cmap('jet', 100)(numpy.arange(100))[10:90]
+blu_values = matplotlib.pyplot.get_cmap(
+    'seismic_r', 20)(numpy.arange(20))[10:15]
+ncmap = matplotlib.colors.LinearSegmentedColormap.from_list(
+    'jro', numpy.vstack((blu_values, jet_values)))
+matplotlib.pyplot.register_cmap(cmap=ncmap)
 
-path = os.getcwd()
-global file_logo
-file_logo =os.path.join(path,"LogoIGP.png")
+CMAPS = [plt.get_cmap(s) for s in ('jro', 'jet', 'viridis',
+                                   'plasma', 'inferno', 'Greys', 'seismic', 'bwr', 'coolwarm')]
 
 EARTH_RADIUS = 6.3710e3
-
-register_cmap()
 
 def ll2xy(lat1, lon1, lat2, lon2):
 
@@ -175,7 +174,6 @@ class Plot(Operation):
     bgcolor = 'white'
     buffering = True
     __missing = 1E30
-    projection = None
 
     __attrs__ = ['show', 'save', 'ymin', 'ymax', 'zmin', 'zmax', 'title',
                  'showprofile']
@@ -226,8 +224,7 @@ class Plot(Operation):
         self.zlimits = kwargs.get('zlimits', None)
         self.xmin = kwargs.get('xmin', None)
         self.xmax = kwargs.get('xmax', None)
-        self.yrange = kwargs.get('yrange', None)
-        self.xrange = kwargs.get('xrange', None)
+        self.xrange = kwargs.get('xrange', 12)
         self.xscale = kwargs.get('xscale', None)
         self.ymin = kwargs.get('ymin', None)
         self.ymax = kwargs.get('ymax', None)
@@ -257,17 +254,7 @@ class Plot(Operation):
         self.__throttle_plot = apply_throttle(self.throttle)
         code = self.attr_data if self.attr_data else self.CODE
         self.data = PlotterData(self.CODE, self.exp_code, self.localtime)
-        self.ang_min = kwargs.get('ang_min', None)
-        self.ang_max = kwargs.get('ang_max', None)
-        self.mode  = kwargs.get('mode', None)
-        self.mask  = kwargs.get('mask', False)
-        self.mask0 = kwargs.get('mask0', False)
-        self.index = kwargs.get('index', None)
-        self.shapes = kwargs.get('shapes', './')
-        self.map = kwargs.get('map', False)
-        self.latitude = kwargs.get('latitude', -12)
-        self.longitude = kwargs.get('longitude', -74)
-
+        
         if self.server:
             if not self.server.startswith('tcp://'):
                 self.server = 'tcp://{}'.format(self.server)
@@ -279,7 +266,6 @@ class Plot(Operation):
         if isinstance(self.attr_data, str):
             self.attr_data = [self.attr_data]
 
-
     def __setup_plot(self):
         '''
         Common setup for all figures, here figures and axes are created
@@ -287,13 +273,13 @@ class Plot(Operation):
 
         self.setup()
 
-        self.time_label = 'LT' if self.localtime else 'UTC'
+        self.time_label = 'LT' if self.localtime else 'UTC'        
 
         if self.width is None:
             self.width = 8
 
-        self.figures = {'PPI':[], 'RHI':[], 'SPC:':[]}
-        self.axes = {'PPI':[], 'RHI':[], 'SPC:':[]}
+        self.figures = []
+        self.axes = []
         self.cb_axes = []
         self.pf_axes = []
         self.cmaps = []
@@ -304,33 +290,18 @@ class Plot(Operation):
         if self.oneFigure:
             if self.height is None:
                 self.height = 1.4 * self.nrows + 1
-            fig_p = plt.figure(figsize=(self.width, self.height),
+            fig = plt.figure(figsize=(self.width, self.height),
                              edgecolor='k',
                              facecolor='w')
-            fig_r = plt.figure(figsize=(self.width, 4),
-                             edgecolor='k',
-                             facecolor='w')
-            self.figures['PPI'].append(fig_p)
-            self.figures['RHI'].append(fig_r)
+            self.figures.append(fig)
             for n in range(self.nplots):
-                if self.map:
-                    ax_p = fig_p.add_subplot(self.nrows, self.ncols, n+1, polar=self.polar, projection=ccrs.PlateCarree())
-                else:
-                    ax_p = fig_p.add_subplot(self.nrows, self.ncols, n+1, polar=self.polar)
-                    print('sin projection')
-                ax_r = fig_r.add_subplot(self.nrows, self.ncols, n+1, polar=self.polar)
-                ax_p.tick_params(labelsize=8)
-                ax_p.firsttime = True
-                ax_p.index = 0
-                ax_p.press = None
-                ax_r.tick_params(labelsize=8)
-                ax_r.firsttime = True
-                ax_r.index = 0
-                ax_r.press = None
-
-                self.axes['PPI'].append(ax_p)
-                self.axes['RHI'].append(ax_r)
-
+                ax = fig.add_subplot(self.nrows, self.ncols,
+                                     n + 1, polar=self.polar)
+                ax.tick_params(labelsize=8)
+                ax.firsttime = True
+                ax.index = 0
+                ax.press = None
+                self.axes.append(ax)
                 if self.showprofile:
                     cax = self.__add_axes(ax, size=size, pad=pad)
                     cax.tick_params(labelsize=8)
@@ -342,36 +313,25 @@ class Plot(Operation):
                 fig = plt.figure(figsize=(self.width, self.height),
                                  edgecolor='k',
                                  facecolor='w')
-                if self.map:
-                    ax_p = fig.add_subplot(1, 1, 1, polar=self.polar, projection=ccrs.PlateCarree())
-                else:
-                    ax_p = fig.add_subplot(1, 1, 1, polar=self.polar)
-                    print('sin projection')
-
-                ax_r = fig.add_subplot(1, 1, 1, polar=self.polar)
-                ax_p.tick_params(labelsize=8)
-                ax_p.firsttime = True
-                ax_p.index = 0
-                ax_p.press = None
-                ax_r.tick_params(labelsize=8)
-                ax_r.firsttime = True
-                ax_r.index = 0
-                ax_r.press = None
+                ax = fig.add_subplot(1, 1, 1, polar=self.polar)
+                ax.tick_params(labelsize=8)
+                ax.firsttime = True
+                ax.index = 0
+                ax.press = None
                 self.figures.append(fig)
-                self.axes['PPI'].append(ax_p)
-                self.axes['RHI'].append(ax_r)
+                self.axes.append(ax)
                 if self.showprofile:
                     cax = self.__add_axes(ax, size=size, pad=pad)
                     cax.tick_params(labelsize=8)
                     self.pf_axes.append(cax)
 
-        # for n in range(self.nrows):
-        #     if self.colormaps is not None:
-        #         cmap = plt.get_cmap(self.colormaps[n])
-        #     else:
-        #         cmap = plt.get_cmap(self.colormap)
-        #     cmap.set_bad(self.bgcolor, 1.)
-        #     self.cmaps.append(cmap)
+        for n in range(self.nrows):
+            if self.colormaps is not None:
+                cmap = plt.get_cmap(self.colormaps[n])
+            else:
+                cmap = plt.get_cmap(self.colormap)
+            cmap.set_bad(self.bgcolor, 1.)
+            self.cmaps.append(cmap)
 
     def __add_axes(self, ax, size='30%', pad='8%'):
         '''
@@ -418,8 +378,8 @@ class Plot(Operation):
         '''
         Set min and max values, labels, ticks and titles
         '''
-
-        for n, ax in enumerate(self.axes[self.mode]):
+            
+        for n, ax in enumerate(self.axes):
             if ax.firsttime:
                 if self.xaxis != 'time':
                     xmin = self.xmin
@@ -431,9 +391,7 @@ class Plot(Operation):
                     ax.xaxis.set_major_locator(LinearLocator(9))
                 ymin = self.ymin if self.ymin is not None else numpy.nanmin(self.y[numpy.isfinite(self.y)])
                 ymax = self.ymax if self.ymax is not None else numpy.nanmax(self.y[numpy.isfinite(self.y)])
-
                 ax.set_facecolor(self.bgcolor)
-
                 if self.xscale:
                     ax.xaxis.set_major_formatter(FuncFormatter(
                         lambda x, pos: '{0:g}'.format(x*self.xscale)))
@@ -448,16 +406,12 @@ class Plot(Operation):
                     self.pf_axes[n].set_ylim(ymin, ymax)
                     self.pf_axes[n].set_xlim(self.zmin, self.zmax)
                     self.pf_axes[n].set_xlabel('dB')
-                    self.pf_axes[n].grid(b=True, axis='x')
-                    [tick.set_visible(False)
-                    for tick in self.pf_axes[n].get_yticklabels()]
+                    #self.pf_axes[n].grid(b=True, axis='x')
+                    #[tick.set_visible(False)
+                    #for tick in self.pf_axes[n].get_yticklabels()]
                 if self.colorbar:
                     ax.cbar = plt.colorbar(
-                        ax.plt, ax=ax, fraction=0.05, pad=0.06, aspect=10)
-                    if self.colormap=='sophy_r':
-                        ax.cbar.set_ticks([0.2, 0.73, 0.83, 0.93, 0.96, 0.99, 1.02, 1.05])
-                    elif self.colormap=='sophy_d':
-                        ax.cbar.set_ticks([-9, -6, -3, 0, 3, 6, 9, 12])
+                        ax.plt, ax=ax, fraction=0.05, pad=0.02, aspect=10)
                     ax.cbar.ax.tick_params(labelsize=8)
                     ax.cbar.ax.press = None
                     if self.cb_label:
@@ -466,39 +420,26 @@ class Plot(Operation):
                         ax.cbar.set_label(self.cb_labels[n], size=8)
                 else:
                     ax.cbar = None
-
                 ax.set_xlim(xmin, xmax)
                 ax.set_ylim(ymin, ymax)
-
                 ax.firsttime = False
                 if self.grid:
                     ax.grid(True)
             if not self.polar:
-                ax.set_title('{} \n{} {} ({} LT)'.format(
+                ax.set_title('{} {} {}'.format(
                     self.titles[n],
                     self.getDateTime(self.data.max_time).strftime(
                         '%Y-%m-%d %H:%M:%S'),
-                    self.time_label,
-                    (self.getDateTime(self.data.max_time)-datetime.timedelta(hours=5)).strftime(
-                        '%Y-%m-%d %H:%M:%S')),
+                    self.time_label),
                     size=8)
             else:
-                ax.set_title('{} \n{} {} ({} LT)'.format(
-                    self.titles[n],
-                    self.getDateTime(self.data.max_time).strftime(
-                        '%Y-%m-%d %H:%M:%S'),
-                    self.time_label,
-                    (self.getDateTime(self.data.max_time)-datetime.timedelta(hours=5)).strftime(
-                        '%Y-%m-%d %H:%M:%S')),
-                    size=8)
-                if self.mode == 'PPI':
-                    ax.set_yticks(ax.get_yticks(), labels=ax.get_yticks(), color='white')
-                    ax.yaxis.labelpad = 28
-                elif self.mode == 'RHI':
-                    ax.xaxis.labelpad = 16
+                ax.set_title('{}'.format(self.titles[n]), size=8)
+                ax.set_ylim(0, 90)
+                ax.set_yticks(numpy.arange(0, 90, 20))
+                ax.yaxis.labelpad = 40
 
         if self.firsttime:
-            for fig in self.figures['PPI'] + self.figures['RHI']:
+            for n, fig in enumerate(self.figures):
                 fig.subplots_adjust(**self.plots_adjust)
             self.firsttime = False
 
@@ -507,9 +448,7 @@ class Plot(Operation):
         Reset axes for redraw plots
         '''
 
-        axes = self.pf_axes + self.cb_axes + self.axes[self.mode]
-
-        for ax in axes:
+        for ax in self.axes+self.pf_axes+self.cb_axes:
             ax.clear()
             ax.firsttime = True
             if hasattr(ax, 'cbar') and ax.cbar:
@@ -522,14 +461,14 @@ class Plot(Operation):
 
         self.plot()
         self.format()
-        figures = self.figures[self.mode]
-        for n, fig in enumerate(figures):
+        
+        for n, fig in enumerate(self.figures):
             if self.nrows == 0 or self.nplots == 0:
                 log.warning('No data', self.name)
                 fig.text(0.5, 0.5, 'No Data', fontsize='large', ha='center')
                 fig.canvas.manager.set_window_title(self.CODE)
                 continue
-
+            
             fig.canvas.manager.set_window_title('{} - {}'.format(self.title,
                                                                  self.getDateTime(self.data.max_time).strftime('%Y/%m/%d')))
             fig.canvas.draw()
@@ -538,11 +477,9 @@ class Plot(Operation):
                 figpause(0.01)
 
             if self.save:
-                  self.save_figure(n)
-
+                self.save_figure(n)
+        
         if self.server:
-            if self.mode and self.mode == 'RHI':
-                return
             self.send_to_server()
 
     def __update(self, dataOut, timestamp):
@@ -554,63 +491,33 @@ class Plot(Operation):
             'interval': dataOut.timeInterval,
             'channels': dataOut.channelList
         }
-
+        
         data, meta = self.update(dataOut)
         metadata.update(meta)
         self.data.update(data, timestamp, metadata)
-
+    
     def save_figure(self, n):
         '''
         '''
-        if self.mode is not None:
-            ang = 'AZ' if self.mode == 'RHI' else 'EL'
-            folder = '_{}_{}_{}'.format(self.mode, ang, self.mode_value)
-            label = '{}{}_{}'.format(ang[0], self.mode_value, self.save_code)
-        else:
-            folder = ''
-            label = ''
 
-        if self.oneFigure:
-            if (self.data.max_time - self.save_time) <= self.save_period:
-                return
+        if (self.data.max_time - self.save_time) <= self.save_period:
+            return
 
         self.save_time = self.data.max_time
 
-        fig = self.figures[self.mode][n]
+        fig = self.figures[n]
 
         if self.throttle == 0:
-            if self.oneFigure:
-                figname = os.path.join(
-                    self.save,
-                    self.save_code + folder,
-                    '{}_{}_{}.png'.format(
-                        'SOPHY',
-                        self.getDateTime(self.data.max_time).strftime(
-                            '%Y%m%d_%H%M%S'
-                            ),
-                        label
-                        )
-                    )
-                with cbook.get_sample_data(file_logo) as file:
-                    IM_LOGO = image.imread(file)
-                    alto_logo = IM_LOGO.shape[0]  # Altura del logo en píxeles
-                    ancho_logo= IM_LOGO.shape[1] # ancho del logo en pixeles
-                    fig_height = fig.get_figheight() * fig.dpi
-                    fig_width = fig.get_figwidth() * fig.dpi
-                    IM_X    = fig_width - ancho_logo - 160  # Pegado al borde derecho
-                    IM_Y    =  fig_height - alto_logo - 95  # Pegado al borde superior
-                logo=fig.figimage(IM_LOGO,IM_X,IM_Y,zorder=3,alpha=0.7)
-            else:
-                figname = os.path.join(
-                    self.save,
+            figname = os.path.join(
+                self.save,
+                self.save_code,
+                '{}_{}.png'.format(                
                     self.save_code,
-                    '{}_ch{}_{}.png'.format(
-                        self.save_code, n,
-                        self.getDateTime(self.data.max_time).strftime(
-                            '%Y%m%d_%H%M%S'
-                            ),
-                        )
+                    self.getDateTime(self.data.max_time).strftime(
+                        '%Y%m%d_%H%M%S'
+                        ),
                     )
+                )
             log.log('Saving figure: {}'.format(figname), self.name)
             if not os.path.isdir(os.path.dirname(figname)):
                 os.makedirs(os.path.dirname(figname))
@@ -625,12 +532,10 @@ class Plot(Operation):
                     ),
                 )
             )
-
         log.log('Saving figure: {}'.format(figname), self.name)
         if not os.path.isdir(os.path.dirname(figname)):
             os.makedirs(os.path.dirname(figname))
         fig.savefig(figname)
-        logo.remove()
 
     def send_to_server(self):
         '''
@@ -638,14 +543,14 @@ class Plot(Operation):
 
         if self.exp_code == None:
             log.warning('Missing `exp_code` skipping sending to server...')
-
+        
         last_time = self.data.max_time
         interval = last_time - self.sender_time
         if interval < self.sender_period:
             return
 
         self.sender_time = last_time
-
+        
         attrs = ['titles', 'zmin', 'zmax', 'tag', 'ymin', 'ymax']
         for attr in attrs:
             value = getattr(self, attr)
@@ -653,22 +558,22 @@ class Plot(Operation):
                 if isinstance(value, (numpy.float32, numpy.float64)):
                     value = round(float(value), 2)
                 self.data.meta[attr] = value
-        if self.colormap == 'jet' or self.colormap == 'sophy_w':
+        if self.colormap == 'jet':
             self.data.meta['colormap'] = 'Jet'
-        elif 'sophy_v' in self.colormap:
+        elif 'RdBu' in self.colormap:
             self.data.meta['colormap'] = 'RdBu'
         else:
             self.data.meta['colormap'] = 'Viridis'
         self.data.meta['interval'] = int(interval)
 
         self.sender_queue.append(last_time)
-
+        
         while True:
             try:
                 tm = self.sender_queue.popleft()
             except IndexError:
                 break
-            msg = self.data.jsonify(tm, self.save_code, self.plot_type, key='var')
+            msg = self.data.jsonify(tm, self.save_code, self.plot_type)
             self.socket.send_string(msg)
             socks = dict(self.poll.poll(2000))
             if socks.get(self.socket) == zmq.POLLIN:
@@ -701,7 +606,7 @@ class Plot(Operation):
         self.ncols: number of cols
         self.nplots: number of plots (channels or pairs)
         self.ylabel: label for Y axes
-        self.titles: list of axes title
+        self.titles: list of axes title 
 
         '''
         raise NotImplementedError
@@ -716,14 +621,14 @@ class Plot(Operation):
         '''
         Must be defined in the child class, update self.data with new data
         '''
-
+        
         data = {
             self.CODE: getattr(dataOut, 'data_{}'.format(self.CODE))
         }
         meta = {}
 
         return data, meta
-
+    
     def run(self, dataOut, **kwargs):
         '''
         Main plotting routine
@@ -747,7 +652,7 @@ class Plot(Operation):
                 self.poll.register(self.socket, zmq.POLLIN)
 
         tm = getattr(dataOut, self.attr_time)
-
+        
         if self.data and 'time' in self.xaxis and (tm - self.tmin) >= self.xrange*60*60:
             self.save_time = tm
             self.__plot()
@@ -764,7 +669,7 @@ class Plot(Operation):
                 dt = self.getDateTime(tm)
                 if self.xmin is None:
                     self.tmin = tm
-                    self.xmin = dt.hour
+                    self.xmin = dt.hour    
                 minutes = (self.xmin-int(self.xmin)) * 60
                 seconds = (minutes - int(minutes)) * 60
                 self.tmin = (dt.replace(hour=int(self.xmin), minute=int(minutes), second=int(seconds)) -
@@ -787,3 +692,4 @@ class Plot(Operation):
             self.__plot()
         if self.data and not self.data.flagNoData and self.pause:
             figpause(10)
+

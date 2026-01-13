@@ -763,6 +763,8 @@ class Decoder(Operation):
 
     def __convolutionByBlockInTime(self, data):
 
+        print("ConvBlock")
+
         for i in range(self.__nChannels):
             self.datadecTime[i] = signal.correlate(data[i], self.code, mode='full')[:self.__nProfiles,self.nBaud-1:]
         return self.datadecTime
