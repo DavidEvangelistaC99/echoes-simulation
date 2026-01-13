@@ -47,7 +47,9 @@ class SpectraPlot(Plot):
         # Por revisar, se modifico el Noise de forma general
         data['noise'] = 10*numpy.log10(dataOut.getNoise()/dataOut.normFactor)
 
-        print(data['noise'])
+        # DAVID
+        # Print de noise
+        # print(data['noise'])
         meta['xrange'] = (dataOut.getFreqRange(0)/1000., dataOut.getAcfRange(1), dataOut.getVelRange(0))
 
         if self.CODE == 'spc_moments':

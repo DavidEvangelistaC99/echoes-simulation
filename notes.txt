@@ -4,5 +4,5 @@ Complete the implementation of new parameters.
 Changes:
 - Changes to setup.py for schain-test
 - Changes to jroplot_base.py for schain-test
-- Print noise minimum value
+- Print noise minimum value (jroplot_spectra.py)
 - Change dbMin, dbMax in spectra_test.py 
