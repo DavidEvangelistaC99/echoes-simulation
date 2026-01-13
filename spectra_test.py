@@ -86,8 +86,8 @@ op1.addParameter(name='profileRangeList', value='0,249')
 A = 1.0
 ipp = 400.0e-6
 # dc_1 = 14.5
-dc_1 = 0.5
-dc_2 = 1.0
+# dc_1 = 0.5
+# dc_2 = 1.0
 # Consideramos el SR RX
 sr_tx = 20.0e6
 sr_rx = 5.0e6
@@ -95,8 +95,43 @@ sr_rx = 5.0e6
 fc = 2.5e6
 bw = 0
 # bw = 1.5e6
+
+# New parameters
+A_1 = 1.0
+A_2 = 1.0
+ipp = 400.0e-6
+dc_1 = 14.5
+dc_2 = 0.5
+sr_tx = 20.0e6
+sr_rx = 5.0e6
+# The central frequency will define the Chirp sweep (ascending or descending)
+fc_1 = -0.75e6
+fc_2 = 2.5e6
+bw_1 = 1.5e6
+bw_2 = 0
+td_ = 0.0
+window_1 = 'B'
+window_2 = 'B',
+mode_f_ = 0
+phi_ = 0
+rep_ = 250.0
       
-chirp_tx_1, _ = modf.chirpMod(A, ipp, dc_1, sr_rx, sr_rx, fc, bw, t_d = 0, window = 'B', mode_f = 0)
+# chirp_tx_1, _ = modf.chirpMod(A, ipp, dc_1, sr_rx, sr_rx, fc, bw, t_d = 0, window = 'B', mode_f = 0)
+# New TFM chirp signal implemented
+chirp_tx_1 = modf.chirpModUnion_1(  ipp,
+                                    sr_rx, 
+                                    sr_rx, 
+                                    A_1, 
+                                    A_2, 
+                                    dc_1, 
+                                    dc_2, 
+                                    fc_1, 
+                                    fc_2, 
+                                    bw_1, 
+                                    bw_2, 
+                                    td_, 
+                                    window_1, 
+                                    window_2)
 
 code_ = chirp_tx_1
 code = [code_]

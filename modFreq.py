@@ -201,39 +201,53 @@ def chirpModUnion_2(ipp,
 # Example
 if __name__ == "__main__":
   
-  A = 1.0
+  A_1 = 1.0
+  A_2 = 1.0
   ipp = 400.0e-6
-  dc = 12.0
+  dc_1 = 14.5
+  dc_2 = 0.5
   sr_tx = 20.0e6
-  sr_rx = 2.5e6
+  sr_rx = 5.0e6
   # The central frequency will define the Chirp sweep (ascending or descending)
-  fc = 0.0e6
-  bw = 1.0e6
-  td_ = 5.2
-  window_ = 'B'
+  fc_1 = -0.75e6
+  fc_2 = 2.5e6
+  bw_1 = 1.5e6
+  bw_2 = 0
+  td_ = 0.0
+  window_1 = 'B'
+  window_2 = 'B',
   mode_f_ = 0
   phi_ = 0
   rep_ = 250.0
 
-  chirp, full_chirp = chirpMod(A, 
+  chirp, full_chirp = chirpMod(A_1, 
                                ipp, 
-                               dc, 
+                               dc_1, 
                                sr_tx, 
                                sr_rx, 
-                               fc, 
-                               bw, 
+                               fc_1, 
+                               bw_1, 
                                t_d = td_, 
-                               window = window_, 
+                               window = window_1, 
                                mode_f = mode_f_, 
                                phi = phi_)
 
-  # chirpModUnion_1(ipp, sr_tx, sr_rx, A_1, A_2, dc_1, dc_2, fc_1, fc_2, bw_1, bw_2, t_d_, window_1, window_2)
-  # full_chirp_1 = chirpModUnion_1(ipp, sr_tx, sr_rx, A, A, 12.0, 12.0, 0.0e6, 2.0e6, 1.0e6, 0.0e6, td_, 'B', 'R')
-  
-  # chirpModUnion_2(ipp, sr_tx, sr_rx, A_1, A_2, dc_1, dc_2, fc_1, fc_2, bw_1, bw_2, t_d_, window_1, window_2, rep_1, rep_2)
-  # full_chirp_2 = chirpModUnion_2(ipp, sr_rx, sr_rx, A, A/2.0, dc, 1.0, fc, fc, bw, bw, td_, window_, 'R', rep_, rep_)
-  
-  t = [i for i in range(len(chirp))] 
-  plt.plot(t, np.real(chirp)) 
-  plt.plot(t, np.imag(chirp)) 
+  full_chirp_1 = chirpModUnion_1( ipp,
+                                  sr_rx, 
+                                  sr_rx, 
+                                  A_1, 
+                                  A_2, 
+                                  dc_1, 
+                                  dc_2, 
+                                  fc_1, 
+                                  fc_2, 
+                                  bw_1, 
+                                  bw_2, 
+                                  td_, 
+                                  window_1, 
+                                  window_2)
+    
+  t = [i for i in range(len(full_chirp_1))] 
+  plt.plot(t, np.real(full_chirp_1)) 
+  plt.plot(t, np.imag(full_chirp_1)) 
   plt.show()
